@@ -529,8 +529,15 @@ RCT_REMAP_METHOD(getActiveCall,
 }
 
 - (void)reportIncomingCallFrom:(NSString *)from withUUID:(NSUUID *)uuid {
-  CXHandle *callHandle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:from];
+  NSString *_from = [from stringByReplacingOccurrencesOfString:@"client:" withString:@""];
+  NSString *incomingBase64 = [_from stringByReplacingOccurrencesOfString:@"_" withString:@"="];
+  NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:incomingBase64 options:0];
+  NSString *decodedString = [[NSString alloc] initWithData:decodedData encoding:NSUTF8StringEncoding];
+  NSData *jsonData = [decodedString dataUsingEncoding:NSUTF8StringEncoding];
+ 
+  id jsonObject = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
 
+  CXHandle *callHandle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:[jsonObject objectForKey:@"contact_name"]];
   CXCallUpdate *callUpdate = [[CXCallUpdate alloc] init];
   callUpdate.remoteHandle = callHandle;
   callUpdate.supportsDTMF = YES;

@@ -31,5 +31,6 @@
   "author": {
     "name": "Fabrizio Moscon"
   },
+  "prepare": "npm run build",
   "license": "MIT"
 }

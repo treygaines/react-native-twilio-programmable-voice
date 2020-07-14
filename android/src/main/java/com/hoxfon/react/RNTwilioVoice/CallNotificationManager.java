@@ -18,11 +18,13 @@ import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.WindowManager;
+import android.util.Base64;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.twilio.voice.CallInvite;
 
 import java.util.List;
+import org.json.JSONObject;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 
@@ -132,6 +134,18 @@ public class CallNotificationManager {
         extras.putInt(INCOMING_CALL_NOTIFICATION_ID, notificationId);
         extras.putString(CALL_SID_KEY, callInvite.getCallSid());
         extras.putString(NOTIFICATION_TYPE, ACTION_INCOMING_CALL);
+
+        String contactName = "";
+        String incoming = callInvite.getFrom().replace("client:", "").replace('_', '=');
+        byte[] decodedData = Base64.decode(incoming, Base64.DEFAULT);
+
+        try {
+            String decodedString = new String(decodedData, "UTF-8");
+            JSONObject data = new JSONObject(decodedString);
+            contactName = data.getString("contact_name"); 
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
         /*
          * Create the notification shown in the notification drawer
          */
